@@ -45,7 +45,7 @@ def categorical_numerical(df):
 
 
 # page config sets the text and icon that we see on the tab
-st.set_page_config(page_icon="✨", page_title="DataExplora")
+st.set_page_config(page_icon="✨", page_title="AutoEDA")
 
 
 # Define custom CSS styles
@@ -134,8 +134,8 @@ body {
 st.markdown(custom_css, unsafe_allow_html=True)
 
 # Create the introduction section
-st.title("Welcome to DataExplora")
-st.write('<div class="tagline">Unleash the Power of Data with DataExplora!</div>', unsafe_allow_html=True)
+st.title("Welcome to AutoEDA")
+st.write('<div class="tagline">Unleash the Power of Data with AutoEDA!</div>', unsafe_allow_html=True)
 
 # Highlight the key features
 st.write('<div class="features">'
@@ -155,7 +155,7 @@ st.write('<div class="features">'
 
 
 # Create a Streamlit sidebar
-st.sidebar.title("DataExplora: Interactive Data Analysis and Preprocessing")
+st.sidebar.title("AutoEDA: Automated Exploratory Data Analysis and Processing")
 
 # Create a button in the sidebar to upload CSV
 uploaded_file = st.sidebar.file_uploader("Upload Your CSV File Here", type=["csv","xls"])
@@ -381,33 +381,3 @@ else:
         fig = px.bar(group_data, x=categorical_feature_1, y=numerical_feature_1, title=f"{numerical_feature_1} by {categorical_feature_1}")
         st.plotly_chart(fig, use_container_width=True)
 
-
-    with tab3:
-        columns_with_missing_data = []
-        missing_count = df.isnull().sum()
-        columns_with_missing_data = missing_count[missing_count>0].index.tolist()
-
-        if not columns_with_missing_data:
-            st.success("This Dataset does not contain any missing data")
-
-        else:
-            st.warning(f"The following columns have missing data: {', '.join(columns_with_missing_data)}")    
-
-            columns_to_handle_missing_data = st.selectbox("Select a column to handle missing data",columns_with_missing_data)
-
-            missing_data_method = st.selectbox('Select Method To Handle Missing Data: ',['Remove Rows','Fill with Mean','Fill with Median','Fill with Mode'])
-
-            if st.button(f"Handle Missing Data in {columns_to_handle_missing_data}"):
-                if missing_data_method == "Remove Rows":
-                    df.dropna(subset=[columns_to_handle_missing_data], inplace=True)
-                elif missing_data_method == "Impute with Mean":
-                    df[columns_to_handle_missing_data].fillna(df[columns_to_handle_missing_data].mean(), inplace=True)
-                elif missing_data_method == "Impute with Median":
-                    df[columns_to_handle_missing_data].fillna(df[columns_to_handle_missing_data].median(), inplace=True)
-                elif missing_data_method == "Impute with Mode":
-                    mode = df[columns_to_handle_missing_data].mode().iloc[0]
-                    df[columns_to_handle_missing_data].fillna(mode, inplace=True)
-                columns_with_missing_data = []
-
-                missing_count = df.isnull().sum()
-                columns_with_missing_data = missing_count[missing_count>0].index.tolist()
