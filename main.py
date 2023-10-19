@@ -6,41 +6,7 @@ import seaborn as sns
 from collections import Counter
 import plotly.express as px
 
-# function to find missing values in each column
-
-def missing_values(df):
-    missing_values = df.isnull().sum()
-
-    #creating a df to display custom column name while giving summary
-    missing_value_df = pd.DataFrame({"Column Name":missing_values.index, "Missing Count":missing_values.values})
-
-    # plotting the missing values
-
-    # # Plot missing values
-    # fig, ax = plt.subplots(figsize=(10, 6))
-    # sns.barplot(x=df.columns, y=df.isnull().sum())
-    # plt.xticks(rotation=90)
-    # plt.xlabel("Columns")
-    # plt.ylabel("Missing Values Count")
-    # plt.title("Missing Values per Column")
-    # st.pyplot(fig)
-
-    # Display a table with missing value counts
-    st.write(missing_value_df)
-
-
-def categorical_numerical(df):
-    num_columns,cat_columns = [],[]
-    for col in df.columns:
-        if len(df[col].unique()) <= 30 or df[col].dtype== np.object_:
-            cat_columns.append(col.strip())
-
-        else:
-            num_columns.append(col.strip())
-
-    return num_columns,cat_columns
-# Creating the web application
-
+import data_analysis_functions as function
 
 
 
@@ -161,7 +127,7 @@ st.sidebar.title("AutoEDA: Automated Exploratory Data Analysis and Processing")
 uploaded_file = st.sidebar.file_uploader("Upload Your CSV File Here", type=["csv","xls"])
 
 if uploaded_file:
-    df = pd.read_csv(uploaded_file)
+    df = function.load_data(uploaded_file)
 
 
 # Display the dataset preview or any other content here
@@ -171,96 +137,20 @@ if uploaded_file is None:
 else:
 
     tab1, tab2, tab3 = st.tabs(['📊 Dataset Overview :clipboard', "🔎 Data Exploration and Visualization","🛠️ Data Preprocessing"])
-    num_columns, cat_columns = categorical_numerical(df)
+    num_columns, cat_columns = function.categorical_numerical(df)
     
     
     with tab1: # DATASET OVERVIEW TAB
-        st.subheader("1. Dataset Preview")
-        st.markdown("This section provides an overview of your dataset. You can select the number of rows to display and view the dataset's structure.")
-        display_rows = st.slider("Display Rows", 1, len(df), len(df) if len(df) < 20 else 20)
-        st.write(df.head(display_rows))
+
+        function.display_dataset_overview(df,cat_columns,num_columns)
         
-        st.subheader("2. Dataset Overview")
-        st.write(f"**Rows:** {df.shape[0]}")
-        st.write(f"**Columns:** {df.shape[1]}")
-        st.write(f"**Duplicates:** {df.shape[0] - df.drop_duplicates().shape[0]}")
-        st.write(f"**Categorical Columns:** {len(cat_columns)}")
-        st.write(cat_columns)
-        st.write(f"**Numerical Columns:** {len(num_columns)}")
-        st.write(num_columns)
+        function.display_missing_values(df)
         
-        st.subheader("3. Missing Values")
-        missing_count = df.isnull().sum()
-        missing_percentage = (missing_count / len(df)) * 100
-        missing_data = pd.DataFrame({'Missing Count': missing_count, 'Missing Percentage': missing_percentage})
-        missing_data = missing_data[missing_data['Missing Count'] > 0].sort_values(by='Missing Count', ascending=False)
-        if not missing_data.empty:
-            st.write("Missing Data Summary:")
-            st.write(missing_data)
+        function.display_statistics_visualization(df,cat_columns,num_columns)
 
-        else:
-            st.info("No Missing Value Present in the Dataset")
+        function.display_data_types(df)
 
-        
-        st.subheader("4. Data Statistics and Visualizations")
-        st.write("Summary Statistics for Numerical Columns:")
-
-        # need to check if any numeric column even exists or not
-        if len(num_columns)!=0:
-            num_df = df[num_columns]
-            st.write(num_df.describe())
-
-        else:
-            st.info("The dataset does not have any numerical columns")
-
-
-        st.write("Statistics for Categorical Columns:")
-        if len(cat_columns)!=0:
-            num_categorical_cols = st.number_input("Select the number of categorical columns to visualize:", min_value=1, max_value=len(cat_columns), value=len(cat_columns))
-            selected_categorical_cols = st.multiselect("Select categorical columns for bar charts:", cat_columns, cat_columns[:num_categorical_cols])
-            
-            for column in selected_categorical_cols:
-                st.write(f"**{column}**")
-                value_counts = df[column].value_counts()
-                st.bar_chart(value_counts)
-                
-                # Display value counts in a table format
-                st.write(f"Value Counts for {column}:")
-                value_counts_table = df[column].value_counts().reset_index()
-                value_counts_table.columns = ['Value', 'Count']
-                st.write(value_counts_table)
-
-        else:
-            st.info("The dataset does not have any categorical columns")
-        # Add more statistics and visualizations as needed
-
-        # Add a new section for Data Types
-        st.subheader("5. Data Types")
-
-        # Create a DataFrame to display data types
-        data_types_df = pd.DataFrame({'Column Name': df.columns, 'Data Type': df.dtypes})
-        st.write(data_types_df)
-
-            # Add a search box for column filtering
-        search_query = st.text_input("Search for a column:")
-
-        # Add a filter for data types
-        selected_data_type = st.selectbox("Filter by Data Type:", ['All'] + df.dtypes.unique().tolist())
-
-        # Apply filters to the DataFrame
-        filtered_df = df.copy()
-
-        # Filter by search query
-        if search_query:
-            filtered_df = filtered_df.loc[:, filtered_df.columns.str.contains(search_query, case=False)]
-
-        # Filter by data type
-        if selected_data_type != 'All':
-            filtered_df = filtered_df.select_dtypes(include=[selected_data_type])
-
-        # Display the filtered DataFrame
-        st.write(filtered_df)
-
+        function.search_column(df)
 
     with tab2: 
         df_description = df.describe()
@@ -331,7 +221,7 @@ else:
             elif categorical_plot_type == "Frequency Count":
                 cat_value_counts = df[categorical_feature].value_counts()
                 st.write(f"Frequency Count for {categorical_feature}: ")
-                st.write(value_counts)
+                st.write(cat_value_counts)
 
             if categorical_plot_type!= "Frequency Count" and fig is not None:
                 st.plotly_chart(fig,use_container_width=True)   
