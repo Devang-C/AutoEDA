@@ -336,48 +336,60 @@ else:
             if categorical_plot_type!= "Frequency Count" and fig is not None:
                 st.plotly_chart(fig,use_container_width=True)   
 
+
         else:
-            st.info("THe dataset does not have any categorical columns")
+            st.info("The dataset does not have any categorical columns")
 
 
-        st.subheader("Feature Exploration")
-        selected_features = st.multiselect("Select Features for Exploration:", num_columns, default=num_columns[:2], key="feature_exploration")
+        st.subheader("Feature Exploration of Numerical Variables")
+        if len(num_columns)!=0:
+            selected_features = st.multiselect("Select Features for Exploration:", num_columns, default=num_columns[:2], key="feature_exploration")
 
-        if len(selected_features) < 2:
-            st.warning("Please select at least two numerical features for exploration.")
+            if len(selected_features) < 2:
+                st.warning("Please select at least two numerical features for exploration.")
+            else:
+                st.subheader("Explore Relationships Between Features")
+
+                # Scatter Plot Matrix
+                if st.button("Generate Scatter Plot Matrix"):
+                    scatter_matrix_fig = px.scatter_matrix(df, dimensions=selected_features, title="Scatter Plot Matrix")
+                    st.plotly_chart(scatter_matrix_fig, use_container_width=True)
+
+                # Pair Plot
+                if st.button("Generate Pair Plot"):
+                    pair_plot_fig = sns.pairplot(df[selected_features])
+                    st.pyplot(pair_plot_fig)
+
+                # Correlation Heatmap
+                if st.button("Generate Correlation Heatmap"):
+                    correlation_matrix = df[selected_features].corr()
+                    plt.figure(figsize=(10, 6))
+                    sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", linewidths=0.5)
+                    plt.title("Correlation Heatmap")
+                    st.pyplot(plt)     
+
         else:
-            st.subheader("Explore Relationships Between Features")
-
-            # Scatter Plot Matrix
-            if st.button("Generate Scatter Plot Matrix"):
-                scatter_matrix_fig = px.scatter_matrix(df, dimensions=selected_features, title="Scatter Plot Matrix")
-                st.plotly_chart(scatter_matrix_fig, use_container_width=True)
-
-            # Pair Plot
-            if st.button("Generate Pair Plot"):
-                pair_plot_fig = sns.pairplot(df[selected_features])
-                st.pyplot(pair_plot_fig)
-
-            # Correlation Heatmap
-            if st.button("Generate Correlation Heatmap"):
-                correlation_matrix = df[selected_features].corr()
-                plt.figure(figsize=(10, 6))
-                sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", linewidths=0.5)
-                plt.title("Correlation Heatmap")
-                st.pyplot(plt)     
+            st.warning("The dataset does not contain any numerical variables")
 
         # Create a bar graph to get relationship between categorical variable and numerical variable
         st.subheader("Categorical and Numerical Variable Analysis")
-        categorical_feature_1 = st.selectbox(label="Categorical Feature", options=cat_columns)
-        numerical_feature_1 = st.selectbox(label="Numerical Feature", options=num_columns)
+        if len(num_columns)!=0 and len(cat_columns)!=0:
+            categorical_feature_1 = st.selectbox(label="Categorical Feature", options=cat_columns)
 
-        # Group by the selected categorical column and calculate the mean of the numerical column
-        group_data = df.groupby(categorical_feature_1)[numerical_feature_1].mean().reset_index()
-
-        st.subheader("Relationship between Categorical and Numerical Variables")
-        st.write(f"Mean {numerical_feature_1} by {categorical_feature_1}")
         
-        # Create a bar chart
-        fig = px.bar(group_data, x=categorical_feature_1, y=numerical_feature_1, title=f"{numerical_feature_1} by {categorical_feature_1}")
-        st.plotly_chart(fig, use_container_width=True)
+            numerical_feature_1 = st.selectbox(label="Numerical Feature", options=num_columns)
+
+            # Group by the selected categorical column and calculate the mean of the numerical column
+            group_data = df.groupby(categorical_feature_1)[numerical_feature_1].mean().reset_index()
+
+            st.subheader("Relationship between Categorical and Numerical Variables")
+            st.write(f"Mean {numerical_feature_1} by {categorical_feature_1}")
+            
+            # Create a bar chart
+            fig = px.bar(group_data, x=categorical_feature_1, y=numerical_feature_1, title=f"{numerical_feature_1} by {categorical_feature_1}")
+            st.plotly_chart(fig, use_container_width=True)
+
+        else:
+            st.warning("The dataset does not have any numerical variables. Hence Cannot Perform Categorical and Numerical Variable Analysis")
+        
 
