@@ -7,9 +7,10 @@ from collections import Counter
 import plotly.express as px
 
 import data_analysis_functions as function
+import data_preprocessing_function as preprocessing_function
 
-import pandas_profiling
-from streamlit_pandas_profiling import st_profile_report
+
+
 
 # page config sets the text and icon that we see on the tab
 st.set_page_config(page_icon="✨", page_title="AutoEDA")
@@ -130,6 +131,13 @@ uploaded_file = st.sidebar.file_uploader("Upload Your CSV File Here", type=["csv
 if uploaded_file:
     df = function.load_data(uploaded_file)
 
+    # get a copy of original df from the session state or create a new one. this is for preprocessing purposes
+    if 'new_df' not in st.session_state:
+        st.session_state.new_df = df.copy()
+
+    # new_df = st.session_state.new_df
+
+
 
 # Display the dataset preview or any other content here
 if uploaded_file is None:
@@ -200,4 +208,53 @@ else:
 
     # DATA PREPROCESSING  
     if navigation=='Data Preprocessing':
-        st.header("🛠️ Data Preprocessing(To be implemented)")
+        st.header("🛠️ Data Preprocessing")
+
+
+        # REMOVING UNWANTED COLUMNS
+        st.subheader("Remove Unwanted Columns")
+        columns_to_remove = st.multiselect(label='Select Columns to Remove',options=st.session_state.new_df.columns)
+
+        if st.button("Remove Selected Columns"):
+            if columns_to_remove:
+                st.session_state.new_df = preprocessing_function.remove_selected_columns(st.session_state.new_df,columns_to_remove)
+                st.success("Selected Columns Removed Sucessfully")
+                
+        st.dataframe(st.session_state.new_df)
+       
+
+       # Handle missing values in the dataset
+        st.subheader("Handle Missing Data")
+        missing_count = st.session_state.new_df.isnull().sum()
+
+        if missing_count.any():
+
+            selected_missing_option = st.selectbox(
+                "Select how to handle missing data:",
+                ["Remove Rows in Selected Columns", "Fill Missing Data in Selected Columns (Numerical Only)"]
+            )
+
+            if selected_missing_option == "Remove Rows in Selected Columns":
+                columns_to_remove_missing = st.multiselect("Select columns to remove rows with missing data", options=st.session_state.new_df.columns)
+                if st.button("Remove Rows with Missing Data"):
+                    st.session_state.new_df = preprocessing_function.remove_rows_with_missing_data(st.session_state.new_df, columns_to_remove_missing)
+                    st.success("Rows with missing data removed successfully.")
+
+            elif selected_missing_option == "Fill Missing Data in Selected Columns (Numerical Only)":
+                numerical_columns_to_fill = st.multiselect("Select numerical columns to fill missing data", options=st.session_state.new_df.select_dtypes(include=['number']).columns)
+                fill_method = st.selectbox("Select fill method:", ["mean", "median", "mode"])
+                if st.button("Fill Missing Data"):
+                    if numerical_columns_to_fill:
+                        st.session_state.new_df = preprocessing_function.fill_missing_data(st.session_state.new_df, numerical_columns_to_fill, fill_method)
+                        st.success(f"Missing data in numerical columns filled with {fill_method} successfully.")
+
+                    else:
+                        st.warning("Please select a column to fill in the missing data")
+
+            function.display_missing_values(st.session_state.new_df)
+
+        else:
+            st.info("The dataset does not contain any missing values")
+
+
+    
