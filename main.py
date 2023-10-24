@@ -5,7 +5,7 @@ import numpy as np
 import seaborn as sns
 from collections import Counter
 import plotly.express as px
-
+from streamlit_option_menu import option_menu
 import data_analysis_functions as function
 import data_preprocessing_function as preprocessing_function
 
@@ -14,7 +14,6 @@ import data_preprocessing_function as preprocessing_function
 
 # page config sets the text and icon that we see on the tab
 st.set_page_config(page_icon="✨", page_title="AutoEDA")
-
 
 # Define custom CSS styles
 custom_css = """
@@ -98,6 +97,7 @@ body {
 </style>
 """
 
+
 # Set custom CSS
 st.markdown(custom_css, unsafe_allow_html=True)
 
@@ -105,25 +105,34 @@ st.markdown(custom_css, unsafe_allow_html=True)
 st.title("Welcome to AutoEDA")
 st.write('<div class="tagline">Unleash the Power of Data with AutoEDA!</div>', unsafe_allow_html=True)
 
-# Highlight the key features
-st.write('<div class="features">'
-         '<div class="feature">'
-         '<div class="feature-icon">📊</div>'
-         '<div class="feature-title">Explore datasets interactively.</div>'
-         '</div>'
-         '<div class="feature">'
-         '<div class="feature-icon">🔎</div>'
-         '<div class="feature-title">Visualize data with stunning charts.</div>'
-         '</div>'
-         '<div class="feature">'
-         '<div class="feature-icon">🛠️</div>'
-         '<div class="feature-title">Preprocess and prepare your data effortlessly.</div>'
-         '</div>'
-         '</div>', unsafe_allow_html=True)
-
-
 # Create a Streamlit sidebar
 st.sidebar.title("AutoEDA: Automated Exploratory Data Analysis and Processing")
+
+selected = option_menu(
+    menu_title=None,
+    options=['Home','Data Exploration','Data Preprocessing'],
+    icons=['house-heart','bar-chart-fill','hammer'],
+    orientation='horizontal'
+)
+
+if selected=='Home':
+
+    # Highlight the key features
+    st.write('<div class="features">'
+            '<div class="feature">'
+            '<div class="feature-icon">📊</div>'
+            '<div class="feature-title">Explore datasets interactively.</div>'
+            '</div>'
+            '<div class="feature">'
+            '<div class="feature-icon">🔎</div>'
+            '<div class="feature-title">Visualize data with stunning charts.</div>'
+            '</div>'
+            '<div class="feature">'
+            '<div class="feature-icon">🛠️</div>'
+            '<div class="feature-title">Preprocess and prepare your data effortlessly.</div>'
+            '</div>'
+            '</div>', unsafe_allow_html=True)
+
 
 # Create a button in the sidebar to upload CSV
 uploaded_file = st.sidebar.file_uploader("Upload Your CSV File Here", type=["csv","xls"])
@@ -138,20 +147,13 @@ if uploaded_file:
     # new_df = st.session_state.new_df
 
 
-
 # Display the dataset preview or any other content here
 if uploaded_file is None:
     # st.subheader("Welcome to DataExplora!")
     st.markdown("#### Use the sidebar to upload a CSV file and explore your data.")
 else:
-
-    navigation=st.sidebar.radio(label="Select Operations",options=['Data Exploration','Data Preprocessing'])
     
-    if navigation=='Data Exploration':
-
-    
-        if not (navigation):
-            st.write("#### Use the sidebar to navigate to either Data Exploration or Data Preprocessing")
+    if selected=='Data Exploration':
 
         tab1, tab2 = st.tabs(['📊 Dataset Overview :clipboard', "🔎 Data Exploration and Visualization"])
         num_columns, cat_columns = function.categorical_numerical(df)
@@ -207,8 +209,8 @@ else:
             
 
     # DATA PREPROCESSING  
-    if navigation=='Data Preprocessing':
-        st.header("🛠️ Data Preprocessing")
+    if selected=='Data Preprocessing':
+        # st.header("🛠️ Data Preprocessing")
 
 
         # REMOVING UNWANTED COLUMNS
@@ -255,6 +257,6 @@ else:
 
         else:
             st.info("The dataset does not contain any missing values")
-
+            
 
     
