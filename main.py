@@ -227,19 +227,6 @@ else:
             else:
                 st.warning("The dataset does not have any numerical variables. Hence Cannot Perform Categorical and Numerical Variable Analysis")
         
-        # NEED TO FIGURE OUT HOW TO MAKE SKETCH AI work for answering questions related to the dataframe
-        # container = st.container()
-        # with container:
-        #     with st.form(key='my_form',clear_on_submit=True):
-        #         user_input = st.text_input("Query:",placeholder="Ask questions about your Dataset here",key='input')
-        #         submit_button = st.form_submit_button(label='chat')
-
-        #     if submit_button and user_input:
-        #         print(user_input)
-        #         output = df.sketch.ask(user_input)
-
-        #         st.write(str(output))
-
     # DATA PREPROCESSING  
     if selected=='Data Preprocessing':
         # st.header("🛠️ Data Preprocessing")
@@ -293,17 +280,19 @@ else:
         else:
             st.info("The dataset does not contain any missing values")
 
-        
+        encoding_tooltip = '''**One-Hot encoding** converts categories into binary values (0 or 1). It's like creating checkboxes for each category. This makes it possible for computers to work with categorical data.
+        **Label encoding** assigns unique numbers to categories. It's like giving each category a name (e.g., Red, Green, Blue becomes 1, 2, 3). This helps computers understand and work with categories.
+        '''
         st.subheader("Encode Categorical Data")
 
-        categorical_columns = st.session_state.new_df.select_dtypes(include=['object']).columns
+        new_df_categorical_columns = st.session_state.new_df.select_dtypes(include=['object']).columns
 
-        if not categorical_columns.empty:
-            select_categorical_columns = st.multiselect("Select Columns to perform encoding",categorical_columns)
+        if not new_df_categorical_columns.empty:
+            select_categorical_columns = st.multiselect("Select Columns to perform encoding",new_df_categorical_columns)
 
             #choose the encoding method
-            encoding_method = st.selectbox("Select Encoding Method:",['One Hot Encoding','Label Encoding'])
-
+            encoding_method = st.selectbox("Select Encoding Method:",['One Hot Encoding','Label Encoding'],help=encoding_tooltip)
+    
 
             if st.button("Apply Encoding"):
                 if encoding_method=="One Hot Encoding":
@@ -319,8 +308,25 @@ else:
         else:
             st.info("The dataset does not contain any categorical columns")
 
+        feature_scaling_tooltip='''**Standardization** scales your data to have a mean of 0 and a standard deviation of 1. It helps in comparing variables with different units. Think of it like making all values fit on the same measurement scale.
+        **Min-Max scaling** transforms your data to fall between 0 and 1. It's like squeezing data into a specific range. This makes it easier to compare data points that vary widely.'''
 
-        
 
+        st.subheader("Feature Scaling")
+        new_df_numerical_columns = st.session_state.new_df.select_dtypes(include=['number']).columns
+        selected_columns = st.multiselect("Select Numerical Columns to Scale", new_df_numerical_columns)
 
-    
+        scaling_method = st.selectbox("Select Scaling Method:", ['Standardization', 'Min-Max Scaling'],help=feature_scaling_tooltip)
+
+        if st.button("Apply Scaling"):
+            if selected_columns:
+                if scaling_method == "Standardization":
+                    st.session_state.new_df = preprocessing_function.standard_scale(st.session_state.new_df, selected_columns)
+                    st.success("Standardization Applied Successfully.")
+                elif scaling_method == "Min-Max Scaling":
+                    st.session_state.new_df = preprocessing_function.min_max_scale(st.session_state.new_df, selected_columns)
+                    st.success("Min-Max Scaling Applied Successfully.")
+            else:
+                st.warning("Please select numerical columns to scale.")
+
+        st.dataframe(st.session_state.new_df)
