@@ -2,6 +2,9 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from scipy import stats
+
 
 def remove_selected_columns(df,columns_remove):
     return df.drop(columns=columns_remove)
@@ -35,3 +38,16 @@ def label_encode(df, columns):
     for col in columns:
         df[col] = label_encoder.fit_transform(df[col])
     return df
+
+
+
+def standard_scale(df, columns):
+    scaler = StandardScaler()
+    df[columns] = scaler.fit_transform(df[columns])
+    return df
+
+def min_max_scale(df, columns, feature_range=(0, 1)):
+    scaler = MinMaxScaler(feature_range=feature_range)
+    df[columns] = scaler.fit_transform(df[columns])
+    return df
+
