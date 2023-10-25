@@ -5,7 +5,7 @@
 AutoEDA is an open-source Python application designed to streamline the process of Exploratory Data Analysis (EDA) for data scientists, analysts, and anyone working with data. EDA is a crucial step in understanding your dataset, finding patterns, and preparing data for further analysis. AutoEDA simplifies this process by providing an interactive web-based platform to explore, visualize, and preprocess your data effortlessly.
 
 ## Preview
-![Alt text](image.png)
+![Alt text](images/image.png)
 
 This is the home screen of the web application. From here, you can upload any dataset you want and perform Exploratory Data Analysis right through the web.
 
