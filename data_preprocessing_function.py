@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 def remove_selected_columns(df,columns_remove):
     return df.drop(columns=columns_remove)
@@ -21,4 +22,16 @@ def fill_missing_data(df, columns, method):
         elif method == 'mode':
             mode_val = df[column].mode().iloc[0]
             df[column].fillna(mode_val, inplace=True)
+    return df
+
+
+def one_hot_encode(df, columns):
+    df = pd.get_dummies(df, columns=columns, prefix=columns, drop_first=False)
+    return df
+
+
+def label_encode(df, columns):
+    label_encoder = LabelEncoder()
+    for col in columns:
+        df[col] = label_encoder.fit_transform(df[col])
     return df
