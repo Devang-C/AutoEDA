@@ -8,12 +8,26 @@ import plotly.express as px
 from streamlit_option_menu import option_menu
 import data_analysis_functions as function
 import data_preprocessing_function as preprocessing_function
+import sketch
+from streamlit_extras.function_explorer import function_explorer 
+
 
 
 
 
 # page config sets the text and icon that we see on the tab
 st.set_page_config(page_icon="✨", page_title="AutoEDA")
+
+# hide_st_style = """
+#             <style>
+#             #MainMenu {visibility: hidden;}
+#             footer {visibility: hidden;}
+#             header {visibility: hidden;}
+#             </style>
+#             """
+# st.markdown(hide_st_style, unsafe_allow_html=True)
+
+#uncomment the above lines of code when we want to remove made with streamlit logo and also the top right three-dots icon
 
 # Define custom CSS styles
 custom_css = """
@@ -118,20 +132,26 @@ selected = option_menu(
 if selected=='Home':
 
     # Highlight the key features
+    # Highlight the key features with icons and emojis
     st.write('<div class="features">'
-            '<div class="feature">'
-            '<div class="feature-icon">📊</div>'
-            '<div class="feature-title">Explore datasets interactively.</div>'
-            '</div>'
-            '<div class="feature">'
-            '<div class="feature-icon">🔎</div>'
-            '<div class="feature-title">Visualize data with stunning charts.</div>'
-            '</div>'
-            '<div class="feature">'
-            '<div class="feature-icon">🛠️</div>'
-            '<div class="feature-title">Preprocess and prepare your data effortlessly.</div>'
-            '</div>'
-            '</div>', unsafe_allow_html=True)
+             '<div class="feature">'
+             '<div class="feature-icon">📊</div>'
+             '<div class="feature-title">Explore datasets interactively.</div>'
+             '</div>'
+             '<div class="feature">'
+             '<div class="feature-icon">🔎</div>'
+             '<div class="feature-title">Visualize data with stunning charts.</div>'
+             '</div>'
+             '<div class="feature">'
+             '<div class="feature-icon">🛠️</div>'
+             '<div class="feature-title">Preprocess and prepare your data effortlessly.</div>'
+             '</div>'
+             '</div>', unsafe_allow_html=True)
+
+
+    # st.write("Use the top menu bar to navigate to Data Exploration and Data Preprocessing")
+
+   
 
 
 # Create a button in the sidebar to upload CSV
@@ -206,12 +226,27 @@ else:
                 
             else:
                 st.warning("The dataset does not have any numerical variables. Hence Cannot Perform Categorical and Numerical Variable Analysis")
-            
+        
+        # NEED TO FIGURE OUT HOW TO MAKE SKETCH AI work for answering questions related to the dataframe
+        # container = st.container()
+        # with container:
+        #     with st.form(key='my_form',clear_on_submit=True):
+        #         user_input = st.text_input("Query:",placeholder="Ask questions about your Dataset here",key='input')
+        #         submit_button = st.form_submit_button(label='chat')
+
+        #     if submit_button and user_input:
+        #         print(user_input)
+        #         output = df.sketch.ask(user_input)
+
+        #         st.write(str(output))
 
     # DATA PREPROCESSING  
     if selected=='Data Preprocessing':
         # st.header("🛠️ Data Preprocessing")
+        revert = st.button("Revert to Original Dataset")
 
+        if revert:
+            st.session_state.new_df = df.copy()
 
         # REMOVING UNWANTED COLUMNS
         st.subheader("Remove Unwanted Columns")
@@ -257,6 +292,35 @@ else:
 
         else:
             st.info("The dataset does not contain any missing values")
-            
+
+        
+        st.subheader("Encode Categorical Data")
+
+        categorical_columns = st.session_state.new_df.select_dtypes(include=['object']).columns
+
+        if not categorical_columns.empty:
+            select_categorical_columns = st.multiselect("Select Columns to perform encoding",categorical_columns)
+
+            #choose the encoding method
+            encoding_method = st.selectbox("Select Encoding Method:",['One Hot Encoding','Label Encoding'])
+
+
+            if st.button("Apply Encoding"):
+                if encoding_method=="One Hot Encoding":
+                    st.session_state.new_df = preprocessing_function.one_hot_encode(st.session_state.new_df,select_categorical_columns)
+                    st.success("One-Hot Encoding Applied Sucessfully")
+
+                if encoding_method=="Label Encoding":
+                    st.session_state.new_df = preprocessing_function.label_encode(st.session_state.new_df,select_categorical_columns)
+                    st.success("Label Encoding Applied Sucessfully")
+
+
+            st.dataframe(st.session_state.new_df)
+        else:
+            st.info("The dataset does not contain any categorical columns")
+
+
+        
+
 
     
