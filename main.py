@@ -10,12 +10,12 @@ import data_analysis_functions as function
 import data_preprocessing_function as preprocessing_function
 import sketch
 from streamlit_extras.function_explorer import function_explorer 
+import home_page
 
 
 
 
-
-# page config sets the text and icon that we see on the tab
+# # page config sets the text and icon that we see on the tab
 st.set_page_config(page_icon="✨", page_title="AutoEDA")
 
 # hide_st_style = """
@@ -29,131 +29,31 @@ st.set_page_config(page_icon="✨", page_title="AutoEDA")
 
 #uncomment the above lines of code when we want to remove made with streamlit logo and also the top right three-dots icon
 
-# Define custom CSS styles
-custom_css = """
-<style>
-body {
-    background-color: #f5f5f5;
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-}
 
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    text-align: center;
-    padding: 40px;
-}
 
-.header {
-    font-size: 48px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 16px;
-}
-
-.tagline {
-    font-size: 24px;
-    color: #666;
-    margin-bottom: 32px;
-}
-
-.features {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    margin-bottom: 40px;
-}
-
-.feature {
-    flex: 1;
-    text-align: center;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin: 8px;
-    transition: transform 0.3s ease-in-out;
-}
-
-.feature:hover {
-    transform: scale(1.05);
-}
-
-.feature-icon {
-    font-size: 36px;
-    color: #4CAF50;
-}
-
-.feature-title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 16px;
-}
-
-.action-button {
-    background-color: #4CAF50;
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    padding: 16px 32px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.action-button:hover {
-    background-color: #45a049;
-}
-
-</style>
-"""
-
+# Create a Streamlit sidebar
+st.sidebar.title("AutoEDA: Automated Exploratory Data Analysis and Processing")
 
 # Set custom CSS
-st.markdown(custom_css, unsafe_allow_html=True)
+custom_css = home_page.custom_css
+
+# st.markdown(custom_css, unsafe_allow_html=True)
 
 # Create the introduction section
 st.title("Welcome to AutoEDA")
 st.write('<div class="tagline">Unleash the Power of Data with AutoEDA!</div>', unsafe_allow_html=True)
 
-# Create a Streamlit sidebar
-st.sidebar.title("AutoEDA: Automated Exploratory Data Analysis and Processing")
 
 selected = option_menu(
     menu_title=None,
-    options=['Home','Data Exploration','Data Preprocessing'],
-    icons=['house-heart','bar-chart-fill','hammer'],
+    options=['Home', 'Data Exploration', 'Data Preprocessing'],
+    icons=['house-heart', 'bar-chart-fill', 'hammer'],
     orientation='horizontal'
 )
 
-if selected=='Home':
-
-    # Highlight the key features
-    # Highlight the key features with icons and emojis
-    st.write('<div class="features">'
-             '<div class="feature">'
-             '<div class="feature-icon">📊</div>'
-             '<div class="feature-title">Explore datasets interactively.</div>'
-             '</div>'
-             '<div class="feature">'
-             '<div class="feature-icon">🔎</div>'
-             '<div class="feature-title">Visualize data with stunning charts.</div>'
-             '</div>'
-             '<div class="feature">'
-             '<div class="feature-icon">🛠️</div>'
-             '<div class="feature-title">Preprocess and prepare your data effortlessly.</div>'
-             '</div>'
-             '</div>', unsafe_allow_html=True)
-
-
-    # st.write("Use the top menu bar to navigate to Data Exploration and Data Preprocessing")
-
+if selected == 'Home':
+    home_page.show_home_page()
    
-
-
 # Create a button in the sidebar to upload CSV
 uploaded_file = st.sidebar.file_uploader("Upload Your CSV File Here", type=["csv","xls"])
 
@@ -168,9 +68,10 @@ if uploaded_file:
 
 
 # Display the dataset preview or any other content here
-if uploaded_file is None:
+if uploaded_file is None and selected!='Home':
     # st.subheader("Welcome to DataExplora!")
     st.markdown("#### Use the sidebar to upload a CSV file and explore your data.")
+    
 else:
     
     if selected=='Data Exploration':
@@ -329,4 +230,42 @@ else:
             else:
                 st.warning("Please select numerical columns to scale.")
 
+        st.dataframe(st.session_state.new_df)
+
+        st.subheader("Identify and Handle Outliers")
+
+        # Select numeric column for handling outliers
+        selected_numeric_column = st.selectbox("Select Numeric Column for Outlier Handling:", new_df_numerical_columns)
+
+        # Display outliers in a box plot
+        fig, ax = plt.subplots()
+        ax = sns.boxplot(data=st.session_state.new_df, x=selected_numeric_column)
+        st.pyplot(fig)
+
+
+        outliers = preprocessing_function.detect_outliers_zscore(st.session_state.new_df, selected_numeric_column)
+        if outliers:
+            st.warning("Detected Outliers:")
+            st.write(outliers)
+        else:
+            st.info("No outliers detected using IQR.")
+
+
+        # Choose handling method
+        outlier_handling_method = st.selectbox("Select Outlier Handling Method:", ["Remove Outliers", "Transform Outliers"])
+
+        # Perform outlier handling based on the method chosen
+        if st.button("Apply Outlier Handling"):
+            if outlier_handling_method == "Remove Outliers":
+               
+                st.session_state.new_df = preprocessing_function.remove_outliers(st.session_state.new_df, selected_numeric_column,outliers)
+                st.success("Outliers removed successfully.")
+
+            elif outlier_handling_method == "Transform Outliers":
+                # Provide options for transforming outliers (e.g., capping, log transformation)
+                # Update st.session_state.new_df after transforming outliers
+                st.session_state.new_df = preprocessing_function.transform_outliers(st.session_state.new_df, selected_numeric_column,outliers)
+                st.success("Outliers transformed successfully.")
+
+        # Show the updated dataset
         st.dataframe(st.session_state.new_df)
