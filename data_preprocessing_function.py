@@ -51,3 +51,32 @@ def min_max_scale(df, columns, feature_range=(0, 1)):
     df[columns] = scaler.fit_transform(df[columns])
     return df
 
+def detect_outliers_iqr(df, column_name):
+    data = df[column_name]
+    q25, q50, q75 = np.percentile(data, [25, 50, 75])
+    iqr = q75 - q25
+    lower_bound = q25 - 1.5 * iqr
+    upper_bound = q75 + 1.5 * iqr
+    outliers = [x for x in data if x < lower_bound or x > upper_bound]
+    outliers.sort()
+    return outliers
+
+
+
+# Function to detect outliers using z-score
+def detect_outliers_zscore(df, column_name):
+    data = df[column_name]
+    z_scores = np.abs(stats.zscore(data))
+    threshold = 3  # Define a threshold (e.g., 3 is commonly used)
+    outliers = [data[i] for i in range(len(data)) if z_scores[i] > threshold]
+    return outliers
+
+
+def remove_outliers(df, column_name, outliers):
+    return df[~df[column_name].isin(outliers)]
+
+def transform_outliers(df, column_name, outliers):
+    non_outliers = df[~df[column_name].isin(outliers)]
+    median_value = non_outliers[column_name].median()
+    df.loc[df[column_name].isin(outliers), column_name] = median_value
+    return df
