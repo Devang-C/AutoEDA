@@ -8,7 +8,6 @@ import plotly.express as px
 from streamlit_option_menu import option_menu
 import data_analysis_functions as function
 import data_preprocessing_function as preprocessing_function
-import sketch
 from streamlit_extras.function_explorer import function_explorer 
 import home_page
 import base64
@@ -18,14 +17,14 @@ import base64
 # # page config sets the text and icon that we see on the tab
 st.set_page_config(page_icon="✨", page_title="AutoEDA")
 
-# hide_st_style = """
-#             <style>
-#             #MainMenu {visibility: hidden;}
-#             footer {visibility: hidden;}
-#             header {visibility: hidden;}
-#             </style>
-#             """
-# st.markdown(hide_st_style, unsafe_allow_html=True)
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
 
 #uncomment the above lines of code when we want to remove made with streamlit logo and also the top right three-dots icon
 
