@@ -38,7 +38,7 @@ def show_home_page():
 
     # Example Dataset
     st.subheader("Try it Out!")
-    st.write("Get started with an example dataset included in the 'Data Exploration' section. Select it from the dropdown and let AutoEDA do the rest!")
+    st.write("Get started by uploading your own dataset or use the example dataset included in sidebar. Select it and let AutoEDA do the rest!")
 
 
     # Final Message
