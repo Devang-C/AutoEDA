@@ -8,7 +8,6 @@ import plotly.express as px
 from streamlit_option_menu import option_menu
 import data_analysis_functions as function
 import data_preprocessing_function as preprocessing_function
-from streamlit_extras.function_explorer import function_explorer 
 import home_page
 import base64
 
