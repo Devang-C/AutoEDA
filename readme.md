@@ -19,15 +19,12 @@ This is the home screen of the web application. From here, you can upload any da
 
 - Automated Data Preprocessing: Upcoming feature! Automate data preprocessing steps, including handling missing data, encoding categorical variables, scaling, and more.
 
-- Log of Preprocessing Steps: Keep a log of the preprocessing steps performed on your dataset, making it easy to track and reproduce your data preparation process.
 
 ## Why AutoEDA?
 
 - Efficiency: AutoEDA automates routine EDA tasks, saving you time and effort.
 
 - Interactivity: Visualize your data interactively to gain insights quickly.
-
-- Reproducibility: Maintain a log of data preprocessing steps for transparency and reproducibility.
 
 - User-Friendly: No coding required. All tasks can be performed using the user-friendly web interface.
 
@@ -37,24 +34,41 @@ This is the home screen of the web application. From here, you can upload any da
 
 **Data Exploration and Visualization:** Users can explore numerical and categorical features, create histograms, scatter plots, and other visualizations.
 
+**Data Preprocessing**: Users can now perform data preprocessing tasks, including handling missing data, encoding categorical variables,feature scaling, identifying and handling outliers and more, directly from the web interface. This streamlines the data preparation process and saves time.
 ## Roadmap
 
-I am actively working on implementing the data preprocessing feature. Soon, you'll be able to perform tasks like handling missing data, encoding categorical variables, and more, directly from the web interface. This will further simplify your data preparation process.
+I am actively working on enhancing and expanding the data preprocessing feature, as well as adding more features to the application. My goal is to continually improve the user experience and provide a comprehensive set of tools for data analysis and preprocessing. I'm dedicated to making the project even more powerful and user-friendly, so stay tuned for exciting updates and improvements! Your feedback and suggestions are highly appreciated as they help shape the future of this project.
 
 
 ## Try AutoEDA
 
-I invite you to try AutoEDA for yourself. Upload your dataset, explore its features, and visualize the data. We appreciate your feedback and suggestions to make AutoEDA even better.
+I invite you to try AutoEDA for yourself. Upload your dataset, explore its features, and visualize the data. I appreciate your feedback and suggestions to make AutoEDA even better.
 
-Install the necessary libraries
+- Make sure you have Python 3 installed.
 
-`pip install pandas matplotlib numpy plotly streamlit seaborn`
+- Clone this repository to your local machine.
 
-To start the application, just run the following line in terminal
+- Open your command line or terminal.
 
-`streamlit run main.py`
+- Navigate to the project directory.
+
+- Run the following command to install the required Python libraries:
+
+```sh 
+pip install -r requirements.txt
+```
+
+- To start the application, just run the following line in terminal
+
+```sh
+streamlit run main.py
+```
 
 This will run the web application on your default web browser
 
 ## Contibutions
 AutoEDA is an open-source project, and I welcome contributions from the community. You can help by reporting issues, contributing code, or suggesting new features.
+
+
+
+
